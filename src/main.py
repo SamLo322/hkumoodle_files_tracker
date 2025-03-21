@@ -22,9 +22,11 @@ def login(context: BrowserContext):
     page.locator(".btn.login-identityprovider-btn.btn-success").click()
     page.get_by_placeholder("Email").fill(login_info['email'])
 
-    page.locator("#login_btn").click()
-    page.wait_for_load_state("load")
-    if page.url.startswith("https://login.microsoftonline.com/"):
+    with page.expect_response("https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize*") as result:
+        page.locator("#login_btn").click()
+    res = result.value
+
+    if res.status != 302:
         page.locator("#passwordInput").fill(base64.b64decode(login_info['password']).decode())
         page.locator("#submitButton").click()
         page.locator("#idSIButton9").click()
@@ -220,7 +222,7 @@ def download(lib: dict, context: BrowserContext):
     def download_recursive(data: dict, path: list = None):
         path = path or []
 
-        if "type" in data and data['type'] in ["file", "folder", "assignment"]:
+        if "type" in data and data['type'] in ["file", "folder", "assignment", ]:
             if data['type'] == 'file':
                 links = download_file(data['url'], data['cmid'])
             else:
