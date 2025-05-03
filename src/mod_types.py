@@ -54,5 +54,10 @@ def default_mod_types():
         "modname": "Turnitin Assignment 2",
         "module": "turnitintooltwo",
         "plugin": "mod_turnitintooltwo"
+    },
+    "peer evaluation": {
+        "modname": "Peer Work",
+        "module": "peerwork",
+        "plugin": "mod_peerwork"
     }
 }

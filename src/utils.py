@@ -208,19 +208,6 @@ def sym(name: str):
         return ":heavy_check_mark:"
     return "|no symbol|"
 
-
-def default_master():
-    return {
-        "last_update": "2025-01-01 00:00:00",
-        "courses": ["CCST0001", "COMP4322", "FINA6543", "MATH1234"],
-        "db_path": "C:\\Users\\Smartboi\\Documents\\HKU\\Y3S2",
-        "login": {
-            "email": "xxxx@connect.hku.hk",
-            "password": "NA"
-        }
-    }
-
-
 def start_process():
     for task in _process.process.tasks:
         if not task.finished:

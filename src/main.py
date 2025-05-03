@@ -2,6 +2,7 @@ import base64
 import json
 import os.path
 import re
+import shutil
 from datetime import datetime
 
 from playwright.sync_api import BrowserContext, sync_playwright
@@ -77,7 +78,7 @@ def scrape_courses(context: BrowserContext, course: dict, sesskey: str) -> dict:
             'type': action_type
         }
         if not action_type:
-            print(f"{cr('Unidentified module', 'red')}: {i['id']} {i.get('name')}")
+            print(f"{cr('Unidentified module', 'red')} ({cr(course['name'].split(' ')[0], 'turquoise2')}): {i['id']} {i.get('name')}")
     return structure
 
 
@@ -336,6 +337,10 @@ def main():
 
     if utils.prompt("Enter to exit. ('u' to make amendments)").lower() == "u":
         amend_info()
+
+    # Remove userdir [temporary]
+    print("Cleaning up...", "yellow")
+    shutil.rmtree(utils.root_path("usrdir"))
 
 
 if __name__ == '__main__':
