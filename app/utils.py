@@ -1,0 +1,165 @@
+import datetime
+import json
+import os
+import sys
+import zipfile
+from datetime import datetime
+from urllib.parse import unquote
+
+from templates import default_mod_types
+
+
+# TODO: Refract path to class with getters (Only join once)
+def root_path(name: str = None) -> str | None:
+    if getattr(sys, 'frozen', False):
+        base_path = os.path.dirname(sys.executable)
+    else:
+        base_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "program_data")
+
+    match name:
+        case "master":
+            return os.path.join(base_path, "master.json")
+        case "storage":
+            return config.get_master()["storage"]
+        case "logs":
+            return os.path.join(base_path, "storage_logs")
+        case 'mod_types':
+            return os.path.join(base_path, "mod_types.json")
+        # case 'dbinfo':
+        #     return os.path.join(base_path, "dbinfo.json")
+        # case 'dbinfo2':
+        #     return os.path.join(base_path, "dbinfo_ytd.json")
+        # case 'userdir':
+        #     return os.path.join(base_path, "userdir")
+        case _:
+            return base_path
+
+def init_master():
+    if file_exists(f"{root_path('master')}"):
+        return json.load(open(f"{root_path('master')}", "r"))
+    return {}
+
+
+def init_modtype():
+    if not file_exists(root_path('mod_types')):
+        default_types = default_mod_types()
+        write(root_path('mod_types'), default_types, replace=True)
+        return default_types
+    return json.load(open(f"{root_path('mod_types')}", "r"))
+
+
+def init_db(opt: str = None):
+    path = root_path(opt)
+    if not file_exists(path):
+        return {}
+    return json.load(open(f"{path}", "r"))
+
+def folder_exists(path: str, create: bool = True) -> bool:
+    if os.path.exists(path):
+        return True
+    if not create:
+        return False
+    os.makedirs(path)
+    return True
+
+
+def file_exists(path: str) -> bool:
+    return os.path.exists(path)
+
+
+def url_decode(url: str) -> str:
+    return unquote(url)
+
+
+def form_date(date: str, format: str) -> datetime:
+    return datetime.strptime(date, format)
+
+
+def cr(msg: str, color: str = None) -> str:
+    if color:
+        return f"[{color}]{msg}[/{color}]"
+    return msg
+
+
+def latest_filename(path: str) -> str:
+    i = 1
+    orig, file = os.path.split(path)
+    file, extension = file.split(".")
+    while os.path.exists(path):
+        i += 1
+        path = f"{orig}\\{file}_{i}.{extension}"
+    return path
+
+
+def download_file(path: str, content: bytes):
+    with open(path, "wb") as f:
+        f.write(content)
+
+
+def extract_zip(path: str):
+    with zipfile.ZipFile(path, 'r') as zip_ref:
+        zip_ref.extractall(os.path.splitext(path)[0])
+    os.remove(path)
+
+
+def write(path: str, data: dict, replace: bool = False):
+    if not replace:
+        path = latest_filename(path)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def sym(name: str):
+    if name == "tick":
+        return ":heavy_check_mark:"
+    return "|no symbol|"
+
+
+class config_init:
+    master: json
+    mod_types: json
+    db: json
+    db_prev: json
+    skipped_key: tuple
+    replaced_key: tuple
+    color_ignore_keys: tuple
+
+    def __init__(self):
+        folder_exists(root_path())
+        folder_exists(root_path('logs'))
+        self.master = init_master()
+        self.mod_types = init_modtype()
+        self.skipped_key = ('sections', 'cmlist')
+        self.replaced_key = ('title', 'name')
+        self.color_ignore_keys = ('cmid', 'plugin', 'modname', 'module')
+
+    def check_mod_type(self, modname: str, module: str, plugin: str) -> str | None:
+        mod_types = self.get_mod_types()
+        for key, value in mod_types.items():
+            if (
+                    value.get("modname") == modname and
+                    value.get("module") == module and
+                    value.get("plugin") == plugin
+            ):
+                return key
+        return None
+
+    def get_master(self) -> json:
+        if not self.master:
+            return init_master()
+        return self.master
+
+    def get_mod_types(self) -> json:
+        return self.mod_types
+
+    def get_skipped_keys(self) -> tuple:
+        return self.skipped_key
+
+    def get_replaced_keys(self) -> tuple:
+        return self.replaced_key
+
+    def get_color_ignore_keys(self) -> tuple:
+        return self.color_ignore_keys
+
+
+config = config_init()
