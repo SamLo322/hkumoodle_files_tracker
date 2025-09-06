@@ -1,11 +1,10 @@
 import datetime
 import json
 import os
-from beaupy import select
 
 import utils
-from utils import cr
 from logger import logger
+from utils import cr
 
 
 def write_log(data: dict, updatetime: datetime.datetime) -> None:
@@ -18,11 +17,8 @@ def write_log(data: dict, updatetime: datetime.datetime) -> None:
 class logs_manager:
     filenames: list[str]
 
-    # start_time: datetime.datetime
-
     def __init__(self):
         self.filenames = sorted(os.listdir(utils.root_path('logs')), reverse=True)
-        # self.start_time = datetime.datetime.now()
 
     def latest_log_path(self, n: int = 1) -> list[str]:
         return self.filenames[:n]
@@ -37,7 +33,8 @@ class logs_manager:
             return {}
         logger.print('Select version to compare', 'bright_green')
         corr_filenames = [
-            str(datetime.datetime.strptime('_'.join(os.path.splitext(i)[0].split('_')[1:3]), '%Y%m%d_%H%M%S')) for i in self.filenames
+            str(datetime.datetime.strptime('_'.join(os.path.splitext(i)[0].split('_')[1:3]), '%Y%m%d_%H%M%S')) for i in
+            self.filenames
         ]
         opt = logger.select(corr_filenames, return_index=True)
         logger.print(f'Selected version: {corr_filenames[opt]}', 'green')
@@ -45,6 +42,3 @@ class logs_manager:
 
 
 logs = logs_manager()
-
-if __name__ == '__main__':
-    print(logs.get_compare_logs())

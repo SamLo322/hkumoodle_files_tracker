@@ -25,14 +25,9 @@ def root_path(name: str = None) -> str | None:
             return os.path.join(base_path, "storage_logs")
         case 'mod_types':
             return os.path.join(base_path, "mod_types.json")
-        # case 'dbinfo':
-        #     return os.path.join(base_path, "dbinfo.json")
-        # case 'dbinfo2':
-        #     return os.path.join(base_path, "dbinfo_ytd.json")
-        # case 'userdir':
-        #     return os.path.join(base_path, "userdir")
         case _:
             return base_path
+
 
 def init_master():
     if file_exists(f"{root_path('master')}"):
@@ -53,6 +48,7 @@ def init_db(opt: str = None):
     if not file_exists(path):
         return {}
     return json.load(open(f"{path}", "r"))
+
 
 def folder_exists(path: str, create: bool = True) -> bool:
     if os.path.exists(path):

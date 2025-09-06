@@ -14,6 +14,7 @@ def get_course_options():
     res = moodle_mainpage()
     return [i['fullname'] for i in res.json()[0]['data']['courses']]
 
+
 def moodle_main() -> dict:
     logger.spinner(cr("Starting app", "green"))
     logger.stop_spinner()
@@ -30,6 +31,7 @@ def moodle_main() -> dict:
 
     download(uni_lib)
     return uni_lib
+
 
 def scrape_courses(course: dict) -> dict:
     sesskey = playwright.get_sesskey()
@@ -193,7 +195,6 @@ def download(lib: dict):
         else:
             for key, value in data.items():
                 if isinstance(value, dict):
-                    # logger.print(f'New path: {path + rename(value, key)}')
                     download_recursive(value, path + rename(value, key))
 
                 if key in top_level:

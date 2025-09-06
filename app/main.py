@@ -49,5 +49,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # import os
-    # res = json.load(open(os.path.join(utils.root_path(), 'courses_info.json')))[0]

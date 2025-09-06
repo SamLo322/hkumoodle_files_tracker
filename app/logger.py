@@ -130,13 +130,12 @@ class Rich:
         tree_print(tree)
         return True
 
-
     def db_diff(self, lib: dict, orig: dict) -> bool:
         lib = copy.deepcopy(lib)
         orig = copy.deepcopy(orig)
         if orig == {}:
             self.print("No previous version", "yellow")
-            return True # First run requires saving
+            return True  # First run requires saving
         logs = {}
 
         def recursive_color(dt, color: str = None):
@@ -157,7 +156,6 @@ class Rich:
                 if i not in writer:
                     writer[i] = {}
                 writer = writer[i]
-            # print(f'Recursive color - {cr(key, color)}: {content[key]}')
             writer[cr(key, color)] = recursive_color(content[key], color)
 
         def compare(new: dict, orig: dict, path: list = None):
@@ -195,7 +193,5 @@ class Rich:
         compare(lib, orig)
         return self.print_tree(logs)
 
-logger = Rich()
 
-if __name__ == '__main__':
-    logger.prompt()
+logger = Rich()

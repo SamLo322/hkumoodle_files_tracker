@@ -1,7 +1,7 @@
 import base64
 import re
 
-from playwright.sync_api import sync_playwright, BrowserContext, Page
+from playwright.sync_api import sync_playwright, BrowserContext
 
 from logger import logger
 from utils import config, cr

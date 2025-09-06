@@ -8,6 +8,7 @@ from logger import logger
 from moodle import get_course_options
 from utils import config, cr
 
+
 def intro():
     intro_time = datetime.now()
     if not utils.file_exists(utils.root_path('master')):
@@ -40,12 +41,14 @@ def obtain_storage_path() -> str:
 
 
 def obtain_courses() -> list[str]:
-    logger.print(f"Current courses:\n{'\n'.join(config.get_master().get('courses', [])) or cr('None', 'red')}", "bright_green")
+    logger.print(f"Current courses:\n{'\n'.join(config.get_master().get('courses', [])) or cr('None', 'red')}",
+                 "bright_green")
     courses = []
     opts = ["E", "PICK"]
     while res := logger.prompt("Course code (e.g. math1011): ('pick' to select courses, 'e' to finish)").upper():
         if res == opts[0]:
-            logger.print(f"Selected courses:\n{'\n'.join(courses)}", "bright_green") if courses else logger.print("Courses cleared", "red")
+            logger.print(f"Selected courses:\n{'\n'.join(courses)}", "bright_green") if courses else logger.print(
+                "Courses cleared", "red")
             break
         elif res == opts[1]:
             selected = logger.select_multiple(get_course_options() + ["Cancel"])
