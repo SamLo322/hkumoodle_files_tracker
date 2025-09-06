@@ -1,67 +1,39 @@
-import base64
 import json
 import os
 import re
 from typing import Optional
 
-from playwright.sync_api import BrowserContext, sync_playwright
-
 import utils
-from browser import create_browser
+from browser import playwright
+from logger import logger
 from utils import cr, config
 
-from logger import logger
 
+def get_course_options():
+    playwright.login()
+    res = moodle_mainpage()
+    return [i['fullname'] for i in res.json()[0]['data']['courses']]
 
 def moodle_main() -> dict:
-    with sync_playwright() as p:
-        logger.spinner(cr("Starting app", "green"))
-        context = create_browser(p)
-        logger.stop_spinner()
+    logger.spinner(cr("Starting app", "green"))
+    logger.stop_spinner()
 
-        login(context)
+    playwright.login()
 
-        uni_lib = {}
-        links, sesskey = identify_courses(context)
+    uni_lib = {}
+    links = identify_courses()
 
-        logger.add_task("scrape_courses", cr(f'Obtaining {len(links)} courses information', 'green'), len(links))
-        for i in links:
-            uni_lib[i['name']] = scrape_courses(context, i, sesskey)
-            logger.update_task("scrape_courses", 1)
+    logger.add_task("scrape_courses", cr(f'Obtaining {len(links)} courses information', 'green'), len(links))
+    for i in links:
+        uni_lib[i['name']] = scrape_courses(i)
+        logger.update_task("scrape_courses", 1)
 
-        download(uni_lib, context)
-        context.close()
+    download(uni_lib)
     return uni_lib
 
-
-def login(context: BrowserContext):
-    login_info = config.get_master()['login']
-
-    logger.spinner(cr("Logging in", "green"))
-
-    page = context.new_page()
-    page.goto("https://moodle.hku.hk/login/index.php")
-
-    page.locator(".btn.login-identityprovider-btn.btn-success").click()
-    page.get_by_placeholder("Email").fill(login_info['email'])
-
-    with page.expect_response("https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize*") as result:
-        page.locator("#login_btn").click()
-    res = result.value
-
-    if res.status != 302:
-        page.locator("#passwordInput").fill(base64.b64decode(login_info['password']).decode())
-        page.locator("#submitButton").click()
-        page.locator("#idSIButton9").click()
-        page.locator("#idSIButton9").click()
-        page.wait_for_event("load")
-
-    logger.stop_spinner()
-    page.close()
-
-
-def scrape_courses(context: BrowserContext, course: dict, sesskey: str) -> dict:
-    res = context.request.post(
+def scrape_courses(course: dict) -> dict:
+    sesskey = playwright.get_sesskey()
+    res = playwright.get_context().request.post(
         f"https://moodle.hku.hk/lib/ajax/service.php?sesskey={sesskey}&info=core_courseformat_get_state",
         data=[{
             "args": {
@@ -105,12 +77,9 @@ def scrape_courses(context: BrowserContext, course: dict, sesskey: str) -> dict:
     return structure
 
 
-def identify_courses(context: BrowserContext) -> tuple[list[dict], str]:
-    logger.spinner(cr("Identifying moodle pages", "green"))
-    res = context.request.get("https://moodle.hku.hk/my/courses.php")
-    sesskey = re.search(r'"sesskey":".+?"', res.text()).group(0).split(":")[1].strip('"')
-
-    res = context.request.post(
+def moodle_mainpage():
+    sesskey = playwright.get_sesskey()
+    return playwright.get_context().request.post(
         f"https://moodle.hku.hk/lib/ajax/service.php?sesskey={sesskey}&info=core_course_get_enrolled_courses_by_timeline_classification",
         data=[{
             "index": 0,
@@ -125,6 +94,11 @@ def identify_courses(context: BrowserContext) -> tuple[list[dict], str]:
                                    "enddate"]
             }
         }])
+
+
+def identify_courses() -> list[dict]:
+    logger.spinner(cr("Identifying moodle pages", "green"))
+    res = moodle_mainpage()
     links = []
     for i in res.json()[0]['data']['courses']:
         for j in config.get_master()['courses']:
@@ -137,11 +111,12 @@ def identify_courses(context: BrowserContext) -> tuple[list[dict], str]:
                 logger.print(f"{cr('Identified moodle page', 'green')}: {cr(i['fullname'], 'turquoise2')}")
                 break
     logger.stop_spinner()
-    return links, sesskey
+    return links
 
 
-def download(lib: dict, context: BrowserContext):
+def download(lib: dict):
     top_level = list(lib.keys())
+    context = playwright.get_context()
 
     def rename(dt: dict, key: str) -> list[str] | list:
         if key in config.get_skipped_keys():
@@ -202,12 +177,11 @@ def download(lib: dict, context: BrowserContext):
                 else:
                     exist = utils.file_exists(full_path)
 
-
                 if exist:
                     # logger.print(f'{cr("File exists", "yellow")}: {cr(partial_path, "cyan")}')
                     pass
                 else:
-                    utils.folder_exists(os.path.dirname(full_path)) # Create parent folder if not exist (recursive)
+                    utils.folder_exists(os.path.dirname(full_path))  # Create parent folder if not exist (recursive)
                     logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
                     utils.download_file(full_path, context.request.get(link).body())
 
