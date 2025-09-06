@@ -1,6 +1,6 @@
 import copy
 
-from beaupy import select
+from beaupy import select, select_multiple
 from rich.console import Console
 from rich.progress import Progress
 from rich.prompt import Prompt, IntPrompt
@@ -67,6 +67,8 @@ class Rich:
             self.process.stop()
 
     def add_task(self, name: str, description: str, total: int):
+        if total < 1:
+            return
         if name in self.tasks:
             self.console.print(f"Replacing task: {name}", "red")
             self.process.tasks[self.tasks[name]].visible = False
@@ -99,9 +101,15 @@ class Rich:
 
     def select(self, opts: list[str], **kwargs) -> str:
         self.process.stop()
-        opt = select(opts, **kwargs)
+        opt = select(opts, page_size=10, **kwargs)
         self.process.start()
         return opt
+
+    def select_multiple(self, opts: list[str], **kwargs) -> list[int]:
+        self.process.stop()
+        user_opts = select_multiple(opts, page_size=10, **kwargs)
+        self.process.start()
+        return user_opts
 
     def print_tree(self, data: dict) -> bool:
         if not data:

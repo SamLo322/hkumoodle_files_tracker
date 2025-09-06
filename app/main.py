@@ -1,6 +1,8 @@
+import json
 from datetime import datetime
 
 import utils
+from browser import playwright
 from dbinfos import logs, write_log
 from logger import logger
 from moodle import moodle_main
@@ -41,6 +43,11 @@ def main():
 
     settings(lib)
 
+    # Close
+    playwright.close()
+
 
 if __name__ == '__main__':
     main()
+    # import os
+    # res = json.load(open(os.path.join(utils.root_path(), 'courses_info.json')))[0]
