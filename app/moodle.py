@@ -56,7 +56,7 @@ def scrape_courses(course: dict) -> dict:
 
     for i in res['section']:
         structure['sections'][i['id']] = {
-            'title': i.get('rawtitle', i.get('title')),
+            'title': i.get('title').replace("&amp;", "&"),
             # 'sectionurl': i.get('sectionurl'),
         }
         if i['cmlist']:
@@ -65,7 +65,7 @@ def scrape_courses(course: dict) -> dict:
     for i in res['cm']:
         action_type = config.check_mod_type(i.get('modname'), i.get('module'), i.get('plugin'))
         structure['sections'][i['sectionid']]['cmlist'][i['id']] = {
-            'name': i.get('name'),
+            'name': i.get('name').replace("&amp;", "&"),
             'cmid': i.get('id'),
             'modname': i.get('modname'),
             'module': i.get('module'),
