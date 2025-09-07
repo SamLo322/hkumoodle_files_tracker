@@ -1,17 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files
 import sys
+import os
 
 datas = []
 datas += collect_data_files('emoji')
 
+main_path = os.path.join('app', 'main.py')
 if sys.platform == "win32":
-    icon_path = 'icons/icon.ico'
+    icon_path = os.path.join('icons', 'icon.ico')
 elif sys.platform == "darwin":
     icon_path = 'icons/icon.icns'
 
 a = Analysis(
-    ['app\\main.py'],
+    [main_path],
     pathex=['app'],
     binaries=[],
     datas=datas,
