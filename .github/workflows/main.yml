@@ -21,15 +21,7 @@ jobs:
           cache: 'pip'
       - run: pip install wheel
       - run: pip install -r requirements.txt pyinstaller
-      - run: |
-          case "${{ matrix.os }}" in
-            windows-latest)
-              pyinstaller main.spec
-              ;;
-            macos-latest)
-              pyinstaller main.spec
-              ;;
-          esac
+      - run: run pyinstaller main.spec
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-executable
