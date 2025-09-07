@@ -56,7 +56,7 @@ def scrape_courses(course: dict) -> dict:
 
     for i in res['section']:
         structure['sections'][i['id']] = {
-            'title': i.get('title'),
+            'title': i.get('rawtitle', i.get('title')),
             # 'sectionurl': i.get('sectionurl'),
         }
         if i['cmlist']:
