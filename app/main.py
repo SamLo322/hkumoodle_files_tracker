@@ -12,14 +12,15 @@ from utils import config, cr
 
 def settings(lib: dict) -> None:
     opts = ['u', 'r']
-    opt = logger.prompt("Enter to exit. ('u' to enter settings, 'r' to compare change history)").lower()
+    msg = "Enter to exit. ('u' to enter settings, 'r' to compare change history)"
+    opt = logger.prompt(msg).lower()
     while opt in opts:
         if opt == opts[0]:
             amend_info()
         elif opt == opts[1]:
             diff_db = logs.get_compare_logs()
             logger.db_diff(lib, diff_db)
-        opt = logger.prompt("Enter to exit. ('u' to enter settings, 'r' to compare change history)").lower()
+        opt = logger.prompt(msg).lower()
 
 
 def update_master_time(update_time: datetime) -> None:

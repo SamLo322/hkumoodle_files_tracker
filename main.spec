@@ -1,9 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files
+import sys
 
 datas = []
 datas += collect_data_files('emoji')
 
+if sys.platform == "win32":
+    icon_path = 'icons/icon.ico'
+elif sys.platform == "darwin":
+    icon_path = 'icons/icon.icns'
 
 a = Analysis(
     ['app\\main.py'],
@@ -26,17 +31,26 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='main',
+    name='moodle_scraper',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False if sys.platform == "darwin" else True,  # Windowed for macOS, console for Windows
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=icon_path
 )
+
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name='moodle_scraper.app',
+        icon=icon_path,
+        bundle_identifier=None
+    )

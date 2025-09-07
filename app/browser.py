@@ -1,5 +1,6 @@
 import base64
 import re
+import sys
 
 from playwright.sync_api import sync_playwright, BrowserContext
 
@@ -18,7 +19,16 @@ class playwright_manager:
         self.context = self.playwright.chromium.launch_persistent_context(
             "",
             channel="chrome",
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0",
+            user_agent={
+                # Window - Edge
+                "win32": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/140.0.3485.54",
+
+                # Mac - Safari
+                "darwin": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_6_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15",
+                # Safari
+                # Mac - Edge
+                # "darwin": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_6_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/140.0.3485.54" #Edge
+            }[sys.platform],
             args=["--headless=new"]
         )
         self.login_status = False

@@ -30,24 +30,24 @@ def root_path(name: str = None) -> str | None:
 
 
 def init_master():
-    if file_exists(f"{root_path('master')}"):
-        return json.load(open(f"{root_path('master')}", "r"))
+    if file_exists(root_path("master")):
+        return json.load(open(root_path("master"), "r"))
     return {}
 
 
 def init_modtype():
-    if not file_exists(root_path('mod_types')):
+    if not file_exists(root_path("mod_types")):
         default_types = default_mod_types()
-        write(root_path('mod_types'), default_types, replace=True)
+        write(root_path("mod_types"), default_types, replace=True)
         return default_types
-    return json.load(open(f"{root_path('mod_types')}", "r"))
+    return json.load(open(root_path("mod_types"), "r"))
 
 
 def init_db(opt: str = None):
     path = root_path(opt)
     if not file_exists(path):
         return {}
-    return json.load(open(f"{path}", "r"))
+    return json.load(open(path, "r"))
 
 
 def folder_exists(path: str, create: bool = True) -> bool:
@@ -80,10 +80,10 @@ def cr(msg: str, color: str = None) -> str:
 def latest_filename(path: str) -> str:
     i = 1
     orig, file = os.path.split(path)
-    file, extension = file.split(".")
+    file, extension = os.path.splitext(file)
     while os.path.exists(path):
         i += 1
-        path = f"{orig}\\{file}_{i}.{extension}"
+        path = os.path.join(orig, f"{file}_{i}{extension}")
     return path
 
 
@@ -93,7 +93,7 @@ def download_file(path: str, content: bytes):
 
 
 def extract_zip(path: str):
-    with zipfile.ZipFile(path, 'r') as zip_ref:
+    with zipfile.ZipFile(path, "r") as zip_ref:
         zip_ref.extractall(os.path.splitext(path)[0])
     os.remove(path)
 
@@ -122,20 +122,20 @@ class config_init:
 
     def __init__(self):
         folder_exists(root_path())
-        folder_exists(root_path('logs'))
+        folder_exists(root_path("logs"))
         self.master = init_master()
         self.mod_types = init_modtype()
-        self.skipped_key = ('sections', 'cmlist')
-        self.replaced_key = ('title', 'name')
-        self.color_ignore_keys = ('cmid', 'plugin', 'modname', 'module')
+        self.skipped_key = ("sections", "cmlist")
+        self.replaced_key = ("title", "name")
+        self.color_ignore_keys = ("cmid", "plugin", "modname", "module")
 
     def check_mod_type(self, modname: str, module: str, plugin: str) -> str | None:
         mod_types = self.get_mod_types()
         for key, value in mod_types.items():
             if (
-                    value.get("modname") == modname and
-                    value.get("module") == module and
-                    value.get("plugin") == plugin
+                value.get("modname") == modname
+                and value.get("module") == module
+                and value.get("plugin") == plugin
             ):
                 return key
         return None

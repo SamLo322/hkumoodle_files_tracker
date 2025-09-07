@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 from tkinter.filedialog import askdirectory
+import os
 import re
 
 import utils
@@ -36,6 +37,9 @@ def obtain_login() -> dict:
 def obtain_storage_path() -> str:
     logger.print("Please select a folder to store your files.", "bright_green")
     path = askdirectory(title="Select folder to store files")
+    if not path:
+        logger.print("No folder selected. Using default storage path.", "red")
+        path = os.path.expanduser("~/Documents")  # Default to Documents folder
     logger.print(f'Selected path: {cr(path, "green")}', "bright_green")
     return path
 
