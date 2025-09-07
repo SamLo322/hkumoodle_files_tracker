@@ -25,9 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-executable
-          path: |
-            dist/main.exe
-            dist/moodle_scraper.app
+          path: dist/moodle_scraper*
       - name: Remove old artifacts
         uses: c-hive/gha-remove-artifacts@v1
         with:
