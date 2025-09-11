@@ -4,6 +4,7 @@ import os
 import sys
 import zipfile
 from datetime import datetime
+from typing import Optional
 from urllib.parse import unquote
 
 from templates import default_mod_types
@@ -29,10 +30,10 @@ def root_path(name: str = None) -> str | None:
             return base_path
 
 
-def init_master():
+def init_master() -> Optional[json]:
     if file_exists(root_path("master")):
         return json.load(open(root_path("master"), "r"))
-    return {}
+    return None
 
 
 def init_modtype():
@@ -112,7 +113,7 @@ def sym(name: str):
 
 
 class config_init:
-    master: json
+    master: Optional[json]
     mod_types: json
     db: json
     db_prev: json
@@ -142,8 +143,8 @@ class config_init:
 
     def get_master(self) -> json:
         if not self.master:
-            return init_master()
-        return self.master
+            self.master = init_master()
+        return self.master | {}
 
     def get_mod_types(self) -> json:
         return self.mod_types
