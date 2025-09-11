@@ -56,3 +56,4 @@ if sys.platform == "darwin":
         icon=icon_path,
         bundle_identifier=None
     )
+    coll = app
