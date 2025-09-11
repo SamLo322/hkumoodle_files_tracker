@@ -76,6 +76,7 @@ def amend_info():
             break
         if opt == 'login':
             master['login'] = obtain_login()
+            config.master = master
         elif opt == 'courses':
             master['courses'] = obtain_courses()
         elif opt == 'path':
