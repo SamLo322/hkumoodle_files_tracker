@@ -17,9 +17,10 @@ def intro():
         master = {
             "last_update": intro_time.strftime("%Y-%m-%d %H:%M:%S"),
             "storage": obtain_storage_path(),
-            "login": obtain_login(),
-            "courses": obtain_courses()
+            "login": obtain_login()
         }
+        config.master = master
+        master['courses'] = obtain_courses()
         utils.write(utils.root_path('master'), master, True)
         logger.print(f"{cr('File created', 'green')}: {cr(utils.root_path('master'), 'cyan')}")
     diff = intro_time - utils.form_date(config.get_master()["last_update"], "%Y-%m-%d %H:%M:%S")
