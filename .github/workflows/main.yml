@@ -27,7 +27,7 @@ jobs:
           name: ${{ matrix.os }}-executable
           path: dist/moodle_scraper*
       - name: Remove old artifacts
-        uses: c-hive/gha-remove-artifacts@v1
+        uses: c-hive/gha-remove-artifacts@v1.4.0
         with:
           age: '1 day'
-          skip-recent: 5
+          skip-recent: 4
