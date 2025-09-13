@@ -10,13 +10,16 @@ from utils import config, cr
 
 
 def settings(lib: dict) -> None:
-    opts = ['u', 'r']
-    msg = "Enter to exit. ('u' to enter settings, 'r' to compare change history)"
+    opts = ['e', 'u', 'r']
+    msg = "Enter to exit. ('e' to get paspapers, 'u' to enter settings, 'r' to compare change history)"
     opt = logger.prompt(msg).lower()
     while opt in opts:
         if opt == opts[0]:
-            amend_info()
+            from exambase import exam_base
+            exam_base()
         elif opt == opts[1]:
+            amend_info()
+        elif opt == opts[2]:
             diff_db = logs.get_compare_logs()
             logger.db_diff(lib, diff_db)
         opt = logger.prompt(msg).lower()

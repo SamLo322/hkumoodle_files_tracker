@@ -31,12 +31,11 @@ class logs_manager:
     def get_compare_logs(self) -> dict:
         if not self.filenames:
             return {}
-        logger.print('Select version to compare', 'bright_green')
         corr_filenames = [
             str(datetime.datetime.strptime('_'.join(os.path.splitext(i)[0].split('_')[1:3]), '%Y%m%d_%H%M%S')) for i in
             self.filenames
         ]
-        opt = logger.select(corr_filenames, return_index=True)
+        opt = logger.select(corr_filenames, 'Select version to compare', return_index=True)
         logger.print(f'Selected version: {corr_filenames[opt]}', 'green')
         return json.load(open(os.path.join(utils.root_path('logs'), self.filenames[opt]), 'r'))
 
