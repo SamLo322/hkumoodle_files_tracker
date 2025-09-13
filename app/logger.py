@@ -1,4 +1,5 @@
 import copy
+from typing import Optional
 
 from beaupy import select, select_multiple
 from rich.console import Console
@@ -34,6 +35,9 @@ class Rich:
             self.console.print(f"[{color}]{msg}[/{color}]")
         else:
             self.console.print(msg)
+
+    def error(self, msg: str):
+        self.console.print(f"[red]{msg}[/red]")
 
     def start_spinner(self):
         if self.process.live.is_started:
@@ -82,7 +86,7 @@ class Rich:
             self.console.print(f"{msg} {sym('tick')}")
 
     def prompt(self, msg: str, tpe: str = None, **kwargs) -> str | int:
-        ref = 0
+        ref = 0 # 0: none, 1: process, 2: spinner
         if self.process.live.is_started:
             self.pause_process()
             ref = 1
@@ -99,8 +103,10 @@ class Rich:
             self.start_spinner()
         return ans
 
-    def select(self, opts: list[str], **kwargs) -> str:
+    def select(self, opts: list[str], msg: Optional[str] = None, **kwargs) -> str:
         self.process.stop()
+        if msg:
+            self.print(msg, "bright_green")
         opt = select(opts, page_size=10, **kwargs)
         self.process.start()
         return opt
