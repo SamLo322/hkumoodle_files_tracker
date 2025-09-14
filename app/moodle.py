@@ -3,6 +3,7 @@ import os
 import plistlib
 import re
 import sys
+import time
 from typing import Optional
 
 import utils
@@ -94,6 +95,7 @@ def scrape_courses(course: dict) -> dict:
             'module': i.get('module'),
             'plugin': i.get('plugin'),
             'url': i.get('url'),
+            'restriction': i.get('hascmrestrictions'),
             'type': action_type
         }
         if not action_type:
@@ -174,7 +176,7 @@ def download(lib: dict):
     def download_recursive(data: dict, path: Optional[list] = None):
         path = path or []
 
-        if "type" in data and data['type'] in ["file", "folder", "assignment", ]:
+        if "type" in data and data['type'] in ["file", "folder", "assignment", ] and not data['restriction']:
             if data['type'] == 'file':
                 links = get_redirect_link(data['url'], data['cmid'])
                 # HTML type file
@@ -223,6 +225,7 @@ def download(lib: dict):
                 if key in top_level:
                     logger.print(f'{cr("Completed", "bright_green")} {cr(key, "turquoise2")} {utils.sym("tick")}')
                     logger.update_task("filesearch", 1)
+                    time.sleep(0.2) # Allow time for the task bar to update
 
     logger.add_task("filesearch", cr(f'Searching for files in {len(lib)} pages', 'green'), len(lib))
     download_recursive(lib)

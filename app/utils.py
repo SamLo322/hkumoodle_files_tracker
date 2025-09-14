@@ -88,8 +88,9 @@ def latest_filename(path: str) -> str:
     return path
 
 
-def download_file(path: str, content: bytes):
-    with open(path, "wb") as f:
+def download_file(path: str, content: bytes | str):
+    mode = "wb" if isinstance(content, bytes) else "w"
+    with open(path, mode) as f:
         f.write(content)
 
 
