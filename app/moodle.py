@@ -1,6 +1,8 @@
 import json
 import os
+import plistlib
 import re
+import sys
 from typing import Optional
 
 import utils
@@ -14,6 +16,26 @@ def get_course_options():
     res = moodle_mainpage()
     return [i['fullname'] for i in res.json()[0]['data']['courses']]
 
+
+def create_course_link(uni_lib: dict):
+    for course in uni_lib:
+        path = os.path.join(utils.root_path("storage"), course)
+        utils.folder_exists(path) # Create course folder if not exist
+
+        if sys.platform == 'win32':
+            link_path = os.path.join(path, f"{course}.url")
+            if not utils.file_exists(link_path):
+                utils.download_file(link_path, f"[InternetShortcut]\nURL={uni_lib[course]['url']}\n")
+                logger.print(f'{cr("Created shortcut file", "green")} for {cr(course, "turquoise2")}')
+        elif sys.platform == 'darwin':
+            try:
+                link_path = os.path.join(path, f"{course}.webloc")
+                if not utils.file_exists(link_path):
+                    with open(link_path, "w") as f:
+                        plistlib.dump({'URL': uni_lib[course]['url']}, f)
+                    logger.print(f'{cr("Created shortcut file", "green")} for {cr(course, "turquoise2")}')
+            except Exception as e:
+                logger.print(f"{cr('Failed to create .webloc file', 'red')}: {cr(e, 'yellow')}")
 
 def moodle_main() -> dict:
     logger.spinner(cr("Starting app", "green"))
@@ -29,6 +51,7 @@ def moodle_main() -> dict:
         uni_lib[i['name']] = scrape_courses(i)
         logger.update_task("scrape_courses", 1)
 
+    create_course_link(uni_lib)
     download(uni_lib)
     return uni_lib
 
