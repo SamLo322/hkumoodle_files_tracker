@@ -177,6 +177,7 @@ def download(lib: dict):
         path = path or []
 
         if "type" in data and data['type'] in ["file", "folder", "assignment", ] and not data['restriction']:
+            filename = None
             if data['type'] == 'file':
                 links = get_redirect_link(data['url'], data['cmid'])
                 # HTML type file
@@ -187,6 +188,9 @@ def download(lib: dict):
                         logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
                         download_page_pdf(data['url'], full_path)
                     return
+            elif data['url'] is None:
+                links = [f'https://moodle.hku.hk/mod/folder/download_folder.php?id={data["cmid"]}']
+                filename = f'{data["name"]}.zip'
             else:
                 links = get_page_links(data['url'])
 
@@ -195,7 +199,7 @@ def download(lib: dict):
                     return
 
             for link in links:
-                filename = utils.url_decode(link.split("/")[-1].split("?")[0])
+                filename: str = filename if filename else utils.url_decode(link.split("/")[-1].split("?")[0])
                 partial_path = os.path.join(*path[:-1], filename)
                 full_path = os.path.join(utils.root_path("storage"), partial_path)
 
