@@ -35,19 +35,23 @@ def update_master_time(update_time: datetime) -> None:
 
 def main():
     intro()
-    lib = moodle_main()
-    # lib = logs.get_prev_log() # For testing purpose
+    try:
+        lib = moodle_main()
+        # lib = logs.get_prev_log() # For testing purpose
 
-    utils.folder_exists(utils.root_path('logs'))
-    if logger.db_diff(lib, logs.get_prev_log()):
-        update_time = datetime.now()
-        write_log(lib, update_time)
-        update_master_time(update_time)
+        utils.folder_exists(utils.root_path('logs'))
+        if logger.db_diff(lib, logs.get_prev_log()):
+            update_time = datetime.now()
+            write_log(lib, update_time)
+            update_master_time(update_time)
 
-    settings(lib)
-
-    # Close
-    playwright.close()
+        settings(lib)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        logger.prompt("Enter to Exit.")
+    finally:
+        # Close
+        playwright.close()
 
 
 if __name__ == '__main__':
