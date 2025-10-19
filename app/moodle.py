@@ -166,31 +166,47 @@ def download(lib: dict):
         regex = re.findall(r'https?://[^"]*forcedownload=1(?=")', res.text())
         return regex
 
-    def download_page_pdf(url: str, path: str) -> None:
-        page = context.new_page()
-        page.goto(url + "&redirect=1")
-        page.emulate_media(media="screen")
-        page.pdf(path=path)
-        page.close()
+    def download_page_pdf(data: dict, path: list) -> None:
+        partial_path, full_path = construct_file_paths(path, f'[HTML] {data["name"]}.pdf')
+        if not utils.file_exists(full_path):
+            logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
+            page = context.new_page()
+            page.goto(data['url'] + "&redirect=1")
+            page.emulate_media(media="screen")
+            page.pdf(path=full_path)
+            page.close()
+        return
+
+    def construct_file_paths(path: list, filename: str) -> tuple[str, str]:
+        partial_path = os.path.join(*path[:-1], filename)
+        full_path = os.path.join(utils.root_path("storage"), partial_path)
+        return partial_path, full_path
 
     def download_recursive(data: dict, path: Optional[list] = None):
         path = path or []
 
         if "type" in data and data['type'] in ["file", "folder", "assignment", ] and not data['restriction']:
-            filename = None
             if data['type'] == 'file':
                 links = get_redirect_link(data['url'], data['cmid'])
+
                 # HTML type file
                 if links is None:
-                    partial_path = os.path.join(*path[:-1], f'[HTML] {data["name"]}.pdf')
-                    full_path = os.path.join(utils.root_path("storage"), partial_path)
-                    if not utils.file_exists(full_path):
-                        logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
-                        download_page_pdf(data['url'], full_path)
+                    download_page_pdf(data, path)
                     return
+
             elif data['url'] is None:
-                links = [f'https://moodle.hku.hk/mod/folder/download_folder.php?id={data["cmid"]}']
+                link = f'https://moodle.hku.hk/mod/folder/download_folder.php?id={data["cmid"]}'
                 filename = f'{data["name"]}.zip'
+                partial_path, full_path = construct_file_paths(path, filename)
+                if not utils.file_exists(os.path.splitext(full_path)[0]):
+                    utils.folder_exists(os.path.dirname(full_path))  # Create parent folder if not exist (recursive)
+                    logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
+                    utils.download_file(full_path, context.request.get(link).body())
+                    logger.spinner(f"{cr('Extracting', 'yellow4')} {cr(partial_path, 'white')}")
+                    utils.extract_zip(full_path)
+                    logger.stop_spinner()
+                return
+
             else:
                 links = get_page_links(data['url'])
 
@@ -198,25 +214,26 @@ def download(lib: dict):
                 if links is None:
                     return
 
-            for link in links:
-                filename: str = filename if filename else utils.url_decode(link.split("/")[-1].split("?")[0])
-                partial_path = os.path.join(*path[:-1], filename)
-                full_path = os.path.join(utils.root_path("storage"), partial_path)
+                if data['type'] == 'assignment':
+                    path.append(data['name'])
 
-                if os.path.splitext(filename)[1] == ".zip":
+            for link in links:
+                filename = utils.url_decode(link.split("/")[-1].split("?")[0])
+                partial_path, full_path = construct_file_paths(path, filename)
+
+                is_zip = os.path.splitext(filename)[1] == ".zip"
+
+                if is_zip:
                     exist = utils.file_exists(os.path.splitext(full_path)[0])
                 else:
                     exist = utils.file_exists(full_path)
 
-                if exist:
-                    # logger.print(f'{cr("File exists", "yellow")}: {cr(partial_path, "cyan")}')
-                    pass
-                else:
+                if not exist:
                     utils.folder_exists(os.path.dirname(full_path))  # Create parent folder if not exist (recursive)
                     logger.print(f'{cr("Downloading", "yellow4")} {cr(partial_path, "white")}')
                     utils.download_file(full_path, context.request.get(link).body())
 
-                    if os.path.splitext(filename)[1] == ".zip":
+                    if is_zip:
                         logger.spinner(f"{cr('Extracting', 'yellow4')} {cr(partial_path, 'white')}")
                         utils.extract_zip(full_path)
                         logger.stop_spinner()
