@@ -10,6 +10,15 @@ from urllib.parse import unquote
 from templates import default_mod_types
 
 
+def validate_filename(name: str) -> str:
+    invalid_chars = '<>:"/\\|?*'
+    file, ext = os.path.splitext(name.strip())
+    for char in invalid_chars:
+        file = file.replace(char, '_')
+    if len(file) == 0:
+        file = 'untitled'
+    return file + ext
+
 # TODO: Refract path to class with getters (Only join once)
 def root_path(name: str = None) -> str | None:
     if getattr(sys, 'frozen', False):
