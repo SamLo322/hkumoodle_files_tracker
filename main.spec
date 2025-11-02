@@ -8,9 +8,9 @@ datas += collect_data_files('emoji')
 
 main_path = os.path.join('app', 'main.py')
 if sys.platform == "win32":
-    icon_path = os.path.join('icons', 'icon.ico')
+    icon_path = os.path.join('media', 'icons', 'icon.ico')
 elif sys.platform == "darwin":
-    icon_path = 'icons/icon.icns'
+    icon_path = os.path.join('media', 'icons', 'icon.icns')
 
 a = Analysis(
     [main_path],
