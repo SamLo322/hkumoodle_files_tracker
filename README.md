@@ -5,11 +5,13 @@ A cross-platform desktop application for scraping and downloading files from HKU
 ## Functionalities
 
 1.  **Customization Path**: Program files are stored in the same directory as the executable file.
+    ![Path Selection](media/README/path_selection.png)
 2.  **Secure Password Storage**: Passwords are stored locally and encoded.
 3.  **User Menu**: An interactive menu is available upon execution.
 4.  **Course Selection**: Users can selectively or manually choose courses during the first execution.
     ![Course Selection](media/README/course_selection.png)
 5.  **Automatic Folder Structure**: Maintains a local folder structure that mirrors Moodle.
+    ![Folder Structure](media/README/folder_structure.png)
 6.  **File Scraping and Downloading**: Scraps and downloads all new files from Moodle to a selected local path.
 7.  **Change Log**: Stores a log for every effective execution where updates are found in Moodle.
 8.  **Tree-like Comparison**: Provides a tree-like comparison with the latest log file. Green color indicates new additions, while red color indicates removals.
