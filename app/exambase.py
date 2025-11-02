@@ -20,7 +20,7 @@ def exam_base():
                     len(full_course_list))
     page = playwright.get_context().new_page()
     for course in full_course_list:
-        download_files(course, course_page(course[:8].upper(), page))
+        download_files(course.split('[')[0].strip(), course_page(course[:8].upper(), page))
         logger.update_task("exam_base", 1)
     page.close()
     return
@@ -29,7 +29,6 @@ def exam_base():
 def filter_packets(res: Response) -> bool:
     match = r"https:\/\/exambase-lib-hku-hk.eproxy.lib.hku.hk\/exhibits\/show\/exam\/home\?the_key=.*"
     return re.match(match, res.url) and res.status == 200
-    # logger.print("\n".join([f"https://exambase-lib-hku-hk.eproxy.lib.hku.hk/{i}" for i in files]), "cyan")
 
 
 def course_page(cde: str, page: Page) -> list[tuple[str, str]]:
