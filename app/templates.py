@@ -69,5 +69,10 @@ def default_mod_types():
             "modname": "Book",
             "module": "book",
             "plugin": "mod_book"
+        },
+        "scheduler": {
+            "modname": "Scheduler",
+            "module": "scheduler",
+            "plugin": "mod_scheduler"
         }
     }

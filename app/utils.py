@@ -123,10 +123,10 @@ def sym(name: str):
 
 
 class config_init:
-    master: Optional[json]
-    mod_types: json
-    db: json
-    db_prev: json
+    master: Optional[dict]
+    mod_types: dict
+    db: dict
+    db_prev: dict
     skipped_key: tuple
     replaced_key: tuple
     color_ignore_keys: tuple
@@ -141,8 +141,7 @@ class config_init:
         self.color_ignore_keys = ("cmid", "plugin", "modname", "module")
 
     def check_mod_type(self, modname: str, module: str, plugin: str) -> str | None:
-        mod_types = self.get_mod_types()
-        for key, value in mod_types.items():
+        for key, value in self.mod_types.items():
             if (
                 value.get("modname") == modname
                 and value.get("module") == module
@@ -151,13 +150,18 @@ class config_init:
                 return key
         return None
 
-    def get_master(self) -> json:
+    def new_mod_type(self, modname: str, module: str, plugin: str):
+        self.mod_types["not set"] = {
+            "modname": modname,
+            "module": module,
+            "plugin": plugin
+        }
+        write(root_path("mod_types"), self.mod_types, True)
+
+    def get_master(self) -> dict:
         if not self.master:
             self.master = init_master()
         return self.master | {}
-
-    def get_mod_types(self) -> json:
-        return self.mod_types
 
     def get_skipped_keys(self) -> tuple:
         return self.skipped_key

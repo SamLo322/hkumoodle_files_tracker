@@ -87,20 +87,24 @@ def scrape_courses(course: dict) -> dict:
             structure['sections'][i['id']]['cmlist'] = {j: {} for j in i['cmlist']}
 
     for i in res['cm']:
-        action_type = config.check_mod_type(i.get('modname'), i.get('module'), i.get('plugin'))
+        modname, module, plugin = i.get('modname'), i.get('module'), i.get('plugin')
+        action_type = config.check_mod_type(modname, module, plugin)
+        if not action_type:
+            config.new_mod_type(modname, module, plugin)
+            logger.print(
+                f"{cr('Unidentified module', 'red')}-{module} ({cr(course['name'].split(' ')[0], 'turquoise2')}): {i['id']} {i.get('name')}")
+            action_type = "not set"
+
         structure['sections'][i['sectionid']]['cmlist'][i['id']] = {
             'name': i.get('name').replace("&amp;", "&"),
             'cmid': i.get('id'),
-            'modname': i.get('modname'),
-            'module': i.get('module'),
-            'plugin': i.get('plugin'),
+            'modname': modname,
+            'module': module,
+            'plugin': plugin,
             'url': i.get('url'),
             'restriction': i.get('hascmrestrictions'),
             'type': action_type
         }
-        if not action_type:
-            logger.print(
-                f"{cr('Unidentified module', 'red')} ({cr(course['name'].split(' ')[0], 'turquoise2')}): {i['id']} {i.get('name')}")
     return structure
 
 
