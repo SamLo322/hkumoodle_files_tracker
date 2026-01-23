@@ -156,7 +156,7 @@ def download(lib: dict):
             if content := dt.get(name):
                 key = content
                 break
-        return [" ".join(key.replace("/", "").replace("\\", "").split())]
+        return [utils.validate_filename(key)]
 
     def get_redirect_link(url: str, cmid: str) -> list[str] | None:
         res = context.request.post(url, data={"id": cmid}, max_redirects=0)
@@ -220,7 +220,7 @@ def download(lib: dict):
                     return
 
                 if data['type'] == 'assignment':
-                    path.append(data['name'])
+                    path.append(utils.validate_filename(data['name']))
 
             for link in links:
                 filename = utils.url_decode(link.split("/")[-1].split("?")[0])

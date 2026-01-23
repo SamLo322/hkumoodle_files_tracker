@@ -11,13 +11,13 @@ from templates import default_mod_types
 
 
 def validate_filename(name: str) -> str:
-    invalid_chars = '<>:"/\\|?*'
-    file, ext = os.path.splitext(name.strip())
+    invalid_chars = '<>:"/\\|?*\n\r\t'
+    name = name.strip()
     for char in invalid_chars:
-        file = file.replace(char, '_')
-    if len(file) == 0:
-        file = 'untitled'
-    return file + ext
+        name = name.replace(char, '_')
+    if len(name) == 0:
+        name = 'untitled'
+    return name
 
 # TODO: Refract path to class with getters (Only join once)
 def root_path(name: str = None) -> str | None:

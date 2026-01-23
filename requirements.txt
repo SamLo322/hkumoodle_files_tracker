@@ -1,5 +1,4 @@
 playwright
 rich
 requests
-beautifulsoup4
 beaupy
